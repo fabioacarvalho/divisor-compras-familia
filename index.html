@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divisor de Compras - Família</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons para ícones -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Pequeno ajuste para esconder as setas de input number em alguns navegadores */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800 pb-10">
+
+    <div class="max-w-md mx-auto pt-8 px-4">
+        <!-- Cabeçalho -->
+        <header class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-3">
+                <i class="ph ph-receipt text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900">Divisor de Mercado</h1>
+            <p class="text-sm text-gray-500 mt-1">Divida a conta facilmente entre a família</p>
+        </header>
+
+        <!-- Container Principal -->
+        <main class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-6">
+            
+            <!-- Mensagem de Erro (Oculta por padrão) -->
+            <div id="error-msg" class="hidden bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                <i class="ph ph-warning-circle text-lg"></i>
+                <span id="error-text">Mensagem de erro</span>
+            </div>
+
+            <!-- Seção 1: Recebedor -->
+            <div>
+                <label for="recebedor" class="block text-sm font-semibold text-gray-700 mb-2">Quem deve receber o PIX?</label>
+                <select id="recebedor" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-3 transition-colors">
+                    <option value="">Selecione o recebedor...</option>
+                    <option value="Fá">Fá</option>
+                    <option value="Bru">Bru</option>
+                    <option value="Déia">Déia</option>
+                    <option value="Delei">Delei</option>
+                    <option value="Outro">Outra pessoa...</option>
+                </select>
+                <input type="text" id="recebedor-outro" placeholder="Digite o nome..." class="hidden mt-2 w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-3 transition-colors">
+            </div>
+
+            <hr class="border-gray-100">
+
+            <!-- Seção 2: Adicionar Item -->
+            <div>
+                <h2 class="text-sm font-semibold text-gray-700 mb-3">Adicionar Novo Item</h2>
+                
+                <div class="space-y-4">
+                    <!-- Valor -->
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Valor do Item (R$)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 font-medium">R$</span>
+                            </div>
+                            <input type="number" id="valor-item" step="0.01" min="0" placeholder="0.00" class="w-full pl-10 bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-3 transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Divisão -->
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-2">Quem vai pagar por este item?</label>
+                        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            <label class="flex items-center space-x-2 bg-white p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" value="Fá" class="chk-pessoa w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500">
+                                <span class="text-sm font-medium text-gray-700">Fá</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" value="Bru" class="chk-pessoa w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500">
+                                <span class="text-sm font-medium text-gray-700">Bru</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" value="Déia" class="chk-pessoa w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500">
+                                <span class="text-sm font-medium text-gray-700">Déia</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-white p-2 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" value="Delei" class="chk-pessoa w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500">
+                                <span class="text-sm font-medium text-gray-700">Delei</span>
+                            </label>
+                            <!-- Botão Todos -->
+                            <label class="flex items-center space-x-2 bg-emerald-50 p-2 border border-emerald-200 rounded-lg cursor-pointer hover:bg-emerald-100 transition-colors col-span-2 sm:col-span-2">
+                                <input type="checkbox" id="chk-todos" class="w-4 h-4 text-emerald-600 bg-gray-100 border-emerald-300 rounded focus:ring-emerald-500">
+                                <span class="text-sm font-bold text-emerald-800">Todos (Dividir por 4)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="adicionarItem()" class="w-full text-white bg-gray-900 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors flex justify-center items-center gap-2">
+                        <i class="ph ph-plus-circle text-lg"></i>
+                        Adicionar Item
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seção 3: Lista de Itens -->
+            <div id="container-lista" class="hidden pt-4 border-t border-gray-100">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-semibold text-gray-700">Itens na Nota</h2>
+                    <span id="total-nota" class="text-sm font-bold text-emerald-600">Total: R$ 0,00</span>
+                </div>
+                <ul id="lista-itens" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-1">
+                    <!-- Itens entram aqui -->
+                </ul>
+
+                <button onclick="fecharNota()" class="w-full text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 font-bold rounded-lg text-base px-5 py-3.5 text-center transition-colors flex justify-center items-center gap-2 shadow-md shadow-emerald-200">
+                    <i class="ph ph-check-circle text-xl"></i>
+                    Fechar Nota e Calcular
+                </button>
+            </div>
+
+            <!-- Seção 4: Resultado -->
+            <div id="container-resultado" class="hidden pt-4 border-t border-gray-100">
+                <h2 class="text-sm font-semibold text-gray-700 mb-2">Resultado da Divisão</h2>
+                <div class="relative">
+                    <textarea id="texto-resultado" readonly class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg p-3 h-40 resize-none font-mono focus:outline-none focus:border-emerald-500"></textarea>
+                    
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="copiarTexto()" id="btn-copiar" class="flex-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 text-center transition-colors flex justify-center items-center gap-2">
+                            <i class="ph ph-copy"></i>
+                            Copiar Texto
+                        </button>
+                        <button onclick="reiniciar()" class="flex-1 text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 focus:ring-4 focus:ring-red-100 font-medium rounded-lg text-sm px-4 py-2.5 text-center transition-colors flex justify-center items-center gap-2">
+                            <i class="ph ph-trash"></i>
+                            Nova Nota
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let itens = [];
+        const pessoasCadastradas = ['Fá', 'Bru', 'Déia', 'Delei'];
+
+        // Elementos do DOM
+        const selectRecebedor = document.getElementById('recebedor');
+        const inputRecebedorOutro = document.getElementById('recebedor-outro');
+        const inputValor = document.getElementById('valor-item');
+        const chkPessoas = document.querySelectorAll('.chk-pessoa');
+        const chkTodos = document.getElementById('chk-todos');
+        const errorMsg = document.getElementById('error-msg');
+        const errorText = document.getElementById('error-text');
+        const containerLista = document.getElementById('container-lista');
+        const listaItens = document.getElementById('lista-itens');
+        const totalNota = document.getElementById('total-nota');
+        const containerResultado = document.getElementById('container-resultado');
+        const textoResultado = document.getElementById('texto-resultado');
+
+        // Formatação de Moeda
+        const formatarMoeda = (valor) => {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+        };
+
+        // Lógica para mostrar/esconder campo "Outro" no recebedor
+        selectRecebedor.addEventListener('change', (e) => {
+            if (e.target.value === 'Outro') {
+                inputRecebedorOutro.classList.remove('hidden');
+                inputRecebedorOutro.focus();
+            } else {
+                inputRecebedorOutro.classList.add('hidden');
+            }
+        });
+
+        // Lógica do Checkbox "Todos"
+        chkTodos.addEventListener('change', (e) => {
+            chkPessoas.forEach(chk => chk.checked = e.target.checked);
+        });
+
+        // Lógica para desmarcar "Todos" se uma pessoa for desmarcada manualmente
+        chkPessoas.forEach(chk => {
+            chk.addEventListener('change', () => {
+                const todosMarcados = Array.from(chkPessoas).every(c => c.checked);
+                chkTodos.checked = todosMarcados;
+            });
+        });
+
+        // Utilitário para exibir erros
+        function mostrarErro(mensagem) {
+            errorText.textContent = mensagem;
+            errorMsg.classList.remove('hidden');
+            setTimeout(() => {
+                errorMsg.classList.add('hidden');
+            }, 4000);
+        }
+
+        // Função para adicionar item
+        function adicionarItem() {
+            const valorBruto = inputValor.value;
+            const valorNum = parseFloat(valorBruto);
+            
+            if (!valorBruto || isNaN(valorNum) || valorNum <= 0) {
+                mostrarErro("Por favor, insira um valor válido para o item.");
+                return;
+            }
+
+            const pessoasSelecionadas = Array.from(chkPessoas)
+                                            .filter(chk => chk.checked)
+                                            .map(chk => chk.value);
+
+            if (pessoasSelecionadas.length === 0) {
+                mostrarErro("Selecione pelo menos uma pessoa para dividir este item.");
+                return;
+            }
+
+            // Cria o item e adiciona ao estado
+            const novoItem = {
+                id: Date.now(),
+                valor: valorNum,
+                pessoas: pessoasSelecionadas
+            };
+
+            itens.push(novoItem);
+            
+            // Limpa os campos do formulário para o próximo item
+            inputValor.value = '';
+            chkPessoas.forEach(chk => chk.checked = false);
+            chkTodos.checked = false;
+            inputValor.focus();
+
+            atualizarInterface();
+        }
+
+        // Função para remover item da lista
+        function removerItem(id) {
+            itens = itens.filter(item => item.id !== id);
+            atualizarInterface();
+        }
+
+        // Atualiza a visualização da lista e do total
+        function atualizarInterface() {
+            listaItens.innerHTML = '';
+            let somaTotal = 0;
+
+            if (itens.length > 0) {
+                containerLista.classList.remove('hidden');
+            } else {
+                containerLista.classList.add('hidden');
+                containerResultado.classList.add('hidden');
+            }
+
+            itens.forEach(item => {
+                somaTotal += item.valor;
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center p-3 bg-gray-50 border border-gray-100 rounded-lg";
+                
+                const formatado = formatarMoeda(item.valor);
+                const pessoasStr = item.pessoas.join(', ');
+
+                li.innerHTML = `
+                    <div class="flex-1">
+                        <div class="font-medium text-sm text-gray-800">${formatado}</div>
+                        <div class="text-xs text-gray-500">Dividido por: ${pessoasStr}</div>
+                    </div>
+                    <button onclick="removerItem(${item.id})" class="text-red-400 hover:text-red-600 p-2 transition-colors" title="Remover item">
+                        <i class="ph ph-trash text-lg"></i>
+                    </button>
+                `;
+                listaItens.appendChild(li);
+            });
+
+            totalNota.textContent = `Total: ${formatarMoeda(somaTotal)}`;
+        }
+
+        // Função principal: Fechar nota e calcular
+        function fecharNota() {
+            // Verifica recebedor
+            let recebedorNome = selectRecebedor.value;
+            if (recebedorNome === 'Outro') {
+                recebedorNome = inputRecebedorOutro.value.trim();
+            }
+
+            if (!recebedorNome) {
+                mostrarErro("Por favor, defina quem deve receber o PIX no topo da página.");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            if (itens.length === 0) {
+                mostrarErro("Adicione pelo menos um item antes de fechar a nota.");
+                return;
+            }
+
+            // Inicializa os totais de cada pessoa
+            const totaisDevidos = { 'Fá': 0, 'Bru': 0, 'Déia': 0, 'Delei': 0 };
+
+            // Calcula a divisão item por item
+            itens.forEach(item => {
+                const valorDividido = item.valor / item.pessoas.length;
+                item.pessoas.forEach(pessoa => {
+                    totaisDevidos[pessoa] += valorDividido;
+                });
+            });
+
+            // Monta o texto de saída no formato solicitado
+            let textoGerado = `*${recebedorNome}*:\n\n`;
+            let temAlguemParaPagar = false;
+
+            pessoasCadastradas.forEach(pessoa => {
+                // Se a pessoa for o recebedor, ela não deve pagar a si mesma, então ignoramos
+                if (pessoa.toLowerCase() === recebedorNome.toLowerCase()) {
+                    return; 
+                }
+
+                // Só adiciona se o valor devido for maior que 0
+                if (totaisDevidos[pessoa] > 0) {
+                    temAlguemParaPagar = true;
+                    textoGerado += `- ${pessoa}: ${formatarMoeda(totaisDevidos[pessoa])};\n`;
+                }
+            });
+
+            if (!temAlguemParaPagar) {
+                textoGerado += "Ninguém deve nada para esta nota!";
+            }
+
+            // Mostra o resultado
+            textoResultado.value = textoGerado;
+            containerResultado.classList.remove('hidden');
+            
+            // Rola a tela até o resultado
+            setTimeout(() => {
+                containerResultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Função para copiar para a área de transferência
+        function copiarTexto() {
+            textoResultado.select();
+            textoResultado.setSelectionRange(0, 99999); // Para mobile
+
+            try {
+                // Tenta usar a API moderna primeiro, senão usa execCommand
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(textoResultado.value).then(() => {
+                        feedbackCopia();
+                    });
+                } else {
+                    document.execCommand('copy');
+                    feedbackCopia();
+                }
+            } catch (err) {
+                mostrarErro("Falha ao copiar. Por favor, copie o texto manualmente.");
+            }
+            
+            // Tira a seleção do texto
+            window.getSelection().removeAllRanges();
+        }
+
+        function feedbackCopia() {
+            const btn = document.getElementById('btn-copiar');
+            const conteudoOriginal = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-check text-emerald-600"></i> <span class="text-emerald-700">Copiado!</span>`;
+            btn.classList.replace('text-gray-700', 'text-emerald-700');
+            btn.classList.replace('border-gray-300', 'border-emerald-300');
+            btn.classList.replace('bg-white', 'bg-emerald-50');
+            
+            setTimeout(() => {
+                btn.innerHTML = conteudoOriginal;
+                btn.classList.replace('text-emerald-700', 'text-gray-700');
+                btn.classList.replace('border-emerald-300', 'border-gray-300');
+                btn.classList.replace('bg-emerald-50', 'bg-white');
+            }, 2000);
+        }
+
+        // Função para limpar tudo e recomeçar
+        function reiniciar() {
+            if(confirm("Tem certeza que deseja apagar a nota atual e começar uma nova?")) {
+                itens = [];
+                selectRecebedor.value = "";
+                inputRecebedorOutro.value = "";
+                inputRecebedorOutro.classList.add('hidden');
+                inputValor.value = "";
+                chkPessoas.forEach(chk => chk.checked = false);
+                chkTodos.checked = false;
+                containerResultado.classList.add('hidden');
+                atualizarInterface();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
