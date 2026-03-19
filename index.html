@@ -182,7 +182,7 @@
 
     <script>
         // Configuração da API do Gemini
-        const apiKey = "";
+        const apiKey = localStorage.getItem('gemini_api_key') || "";
 
         // Estado da aplicação
         let itens = [];
