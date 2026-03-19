@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Divisor de Compras - Família</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phosphor Icons para ícones -->
+    <!-- Phosphor Icons para ícones bonitos -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         /* Pequeno ajuste para esconder as setas de input number em alguns navegadores */
@@ -31,13 +31,13 @@
         <!-- Container Principal -->
         <main class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-6">
             
-            <!-- Mensagem de Erro (Oculta por padrão) -->
+            <!-- Mensagem de Erro (Oculta por defeito) -->
             <div id="error-msg" class="hidden bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
                 <i class="ph ph-warning-circle text-lg"></i>
                 <span id="error-text">Mensagem de erro</span>
             </div>
 
-            <!-- Seção 1: Recebedor -->
+            <!-- Secção 1: Recebedor -->
             <div>
                 <label for="recebedor" class="block text-sm font-semibold text-gray-700 mb-2">Quem deve receber o PIX?</label>
                 <select id="recebedor" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-3 transition-colors">
@@ -53,17 +53,55 @@
 
             <hr class="border-gray-100">
 
-            <!-- Seção 2: Adicionar Item -->
+            <!-- Secção Inteligência Artificial -->
+            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                <label class="block text-sm font-semibold text-emerald-800 mb-2">Importar Recibo (Opcional)</label>
+                <label for="foto-recibo" class="flex flex-col items-center justify-center w-full h-24 border-2 border-emerald-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-emerald-50 transition-colors">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <i class="ph ph-camera text-2xl text-emerald-600 mb-1"></i>
+                        <p class="text-xs text-emerald-700 font-medium">Ler itens pela foto da nota fiscal</p>
+                    </div>
+                    <input id="foto-recibo" type="file" accept="image/*" class="hidden" onchange="processarImagem(event)" />
+                </label>
+                
+                <!-- Indicador de Carregamento IA -->
+                <div id="loading-ia" class="hidden mt-3 flex items-center gap-3">
+                    <i class="ph ph-spinner animate-spin text-emerald-600 text-xl"></i>
+                    <div class="text-sm text-emerald-800">
+                        <p class="font-bold">A ler a nota fiscal...</p>
+                        <p class="text-xs">A IA está a extrair os nomes e os valores.</p>
+                    </div>
+                </div>
+
+                <!-- Fila de Itens Pendentes da IA -->
+                <div id="status-pendentes" class="hidden mt-3 bg-white p-3 rounded-lg border border-emerald-200 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-2 text-emerald-800">
+                        <i class="ph ph-list-numbers text-lg"></i>
+                        <span class="text-sm font-medium"><span id="qtd-pendentes" class="font-bold text-lg">0</span> itens pendentes</span>
+                    </div>
+                    <button onclick="pularPendente()" class="text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-200 transition-colors">Pular Item</button>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <!-- Secção 2: Adicionar Item -->
             <div>
-                <h2 class="text-sm font-semibold text-gray-700 mb-3">Adicionar Novo Item</h2>
+                <h2 class="text-sm font-semibold text-gray-700 mb-3">Adicionar/Rever Item</h2>
                 
                 <div class="space-y-4">
+                    <!-- Nome do Produto -->
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Nome do Produto (Opcional)</label>
+                        <input type="text" id="nome-item" placeholder="Ex: Arroz 5kg" class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-3 transition-colors">
+                    </div>
+
                     <!-- Valor -->
                     <div>
-                        <label class="block text-xs text-gray-500 mb-1">Valor do Item (R$)</label>
+                        <label class="block text-xs text-gray-500 mb-1">Valor do Item (€ ou R$)</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 font-medium">R$</span>
+                                <span class="text-gray-500 font-medium">$</span>
                             </div>
                             <input type="number" id="valor-item" step="0.01" min="0" placeholder="0.00" class="w-full pl-10 bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block p-3 transition-colors">
                         </div>
@@ -104,14 +142,14 @@
                 </div>
             </div>
 
-            <!-- Seção 3: Lista de Itens -->
+            <!-- Secção 3: Lista de Itens -->
             <div id="container-lista" class="hidden pt-4 border-t border-gray-100">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-semibold text-gray-700">Itens na Nota</h2>
-                    <span id="total-nota" class="text-sm font-bold text-emerald-600">Total: R$ 0,00</span>
+                    <span id="total-nota" class="text-sm font-bold text-emerald-600">Total: 0,00</span>
                 </div>
                 <ul id="lista-itens" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-1">
-                    <!-- Itens entram aqui -->
+                    <!-- Os itens entram aqui -->
                 </ul>
 
                 <button onclick="fecharNota()" class="w-full text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-300 font-bold rounded-lg text-base px-5 py-3.5 text-center transition-colors flex justify-center items-center gap-2 shadow-md shadow-emerald-200">
@@ -120,7 +158,7 @@
                 </button>
             </div>
 
-            <!-- Seção 4: Resultado -->
+            <!-- Secção 4: Resultado -->
             <div id="container-resultado" class="hidden pt-4 border-t border-gray-100">
                 <h2 class="text-sm font-semibold text-gray-700 mb-2">Resultado da Divisão</h2>
                 <div class="relative">
@@ -143,13 +181,18 @@
     </div>
 
     <script>
+        // Configuração da API do Gemini
+        const apiKey = "";
+
         // Estado da aplicação
         let itens = [];
+        let itensPendentes = [];
         const pessoasCadastradas = ['Fá', 'Bru', 'Déia', 'Delei'];
 
         // Elementos do DOM
         const selectRecebedor = document.getElementById('recebedor');
         const inputRecebedorOutro = document.getElementById('recebedor-outro');
+        const inputNome = document.getElementById('nome-item');
         const inputValor = document.getElementById('valor-item');
         const chkPessoas = document.querySelectorAll('.chk-pessoa');
         const chkTodos = document.getElementById('chk-todos');
@@ -160,6 +203,11 @@
         const totalNota = document.getElementById('total-nota');
         const containerResultado = document.getElementById('container-resultado');
         const textoResultado = document.getElementById('texto-resultado');
+        
+        // Elementos do DOM da IA
+        const loadingIA = document.getElementById('loading-ia');
+        const statusPendentes = document.getElementById('status-pendentes');
+        const qtdPendentes = document.getElementById('qtd-pendentes');
 
         // Formatação de Moeda
         const formatarMoeda = (valor) => {
@@ -195,11 +243,126 @@
             errorMsg.classList.remove('hidden');
             setTimeout(() => {
                 errorMsg.classList.add('hidden');
-            }, 4000);
+            }, 5000);
         }
 
-        // Função para adicionar item
+        // --- LÓGICA DE INTELIGÊNCIA ARTIFICIAL ---
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
+
+        async function processarImagem(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Verifica se a chave da API está configurada
+            if (!apiKey || apiKey.trim() === "") {
+                mostrarErro("A chave da API (apiKey) não está configurada no código-fonte.");
+                event.target.value = '';
+                return;
+            }
+
+            loadingIA.classList.remove('hidden');
+            statusPendentes.classList.add('hidden');
+            
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64ImageData = reader.result.split(',')[1];
+                
+                // Se houver uma chave real configurada, usa o modelo público (gemini-1.5-flash)
+                // Caso contrário, usa o modelo de testes interno do ambiente
+                const modeloAUsar = (apiKey && apiKey.trim() !== "") ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modeloAUsar}:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: "Extraia os itens de mercado deste recibo. Retorne APENAS um array JSON. Cada objeto deve ter 'nome' (string) e 'valor' (number). O 'valor' deve ser o valor TOTAL daquele item na nota. Ignore descontos gerais ou tributos, foque apenas nos produtos." },
+                            { inlineData: { mimeType: file.type, data: base64ImageData } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    nome: { type: "STRING" },
+                                    valor: { type: "NUMBER" }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                try {
+                    const data = await fetchWithRetry(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const texto = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (texto) {
+                        const itensExtraidos = JSON.parse(texto);
+                        if (itensExtraidos.length > 0) {
+                            itensPendentes = itensExtraidos;
+                            carregarProximoPendente();
+                        } else {
+                            mostrarErro("Nenhum item encontrado na imagem.");
+                        }
+                    }
+                } catch (err) {
+                    mostrarErro("Erro ao ler a imagem. Ocorreu uma falha de comunicação com a IA.");
+                    console.error(err);
+                } finally {
+                    loadingIA.classList.add('hidden');
+                    event.target.value = ''; // Limpa o input file
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Carrega o próximo item da fila lida pela IA
+        function carregarProximoPendente() {
+            if (itensPendentes.length > 0) {
+                statusPendentes.classList.remove('hidden');
+                qtdPendentes.textContent = itensPendentes.length;
+                
+                const proximo = itensPendentes[0];
+                inputNome.value = proximo.nome || '';
+                inputValor.value = proximo.valor ? proximo.valor.toFixed(2) : '';
+                
+            } else {
+                statusPendentes.classList.add('hidden');
+                inputNome.value = '';
+                inputValor.value = '';
+            }
+        }
+
+        // Pula o item pendente atual
+        function pularPendente() {
+            if (itensPendentes.length > 0) {
+                itensPendentes.shift();
+                carregarProximoPendente();
+            }
+        }
+
+        // Função para adicionar item (manual ou revisto da IA)
         function adicionarItem() {
+            const nomeStr = inputNome.value.trim();
             const valorBruto = inputValor.value;
             const valorNum = parseFloat(valorBruto);
             
@@ -220,6 +383,7 @@
             // Cria o item e adiciona ao estado
             const novoItem = {
                 id: Date.now(),
+                nome: nomeStr || `Item ${itens.length + 1}`,
                 valor: valorNum,
                 pessoas: pessoasSelecionadas
             };
@@ -227,10 +391,18 @@
             itens.push(novoItem);
             
             // Limpa os campos do formulário para o próximo item
+            inputNome.value = '';
             inputValor.value = '';
             chkPessoas.forEach(chk => chk.checked = false);
             chkTodos.checked = false;
-            inputValor.focus();
+            
+            // Lógica de fila da IA
+            if (itensPendentes.length > 0) {
+                itensPendentes.shift(); // Remove o que acabou de ser adicionado
+                carregarProximoPendente(); // Puxa o próximo
+            } else {
+                inputNome.focus();
+            }
 
             atualizarInterface();
         }
@@ -253,17 +425,18 @@
                 containerResultado.classList.add('hidden');
             }
 
-            itens.forEach(item => {
+            itens.forEach((item) => {
                 somaTotal += item.valor;
                 const li = document.createElement('li');
                 li.className = "flex justify-between items-center p-3 bg-gray-50 border border-gray-100 rounded-lg";
                 
                 const formatado = formatarMoeda(item.valor);
                 const pessoasStr = item.pessoas.join(', ');
+                const nomeExibicao = item.nome ? item.nome : `Item (Sem nome)`;
 
                 li.innerHTML = `
                     <div class="flex-1">
-                        <div class="font-medium text-sm text-gray-800">${formatado}</div>
+                        <div class="font-medium text-sm text-gray-800">${nomeExibicao} <span class="text-emerald-600 ml-1 font-bold">${formatado}</span></div>
                         <div class="text-xs text-gray-500">Dividido por: ${pessoasStr}</div>
                     </div>
                     <button onclick="removerItem(${item.id})" class="text-red-400 hover:text-red-600 p-2 transition-colors" title="Remover item">
@@ -323,8 +496,14 @@
                 }
             });
 
+            // Mostra resumos individuais na nota final
+            textoGerado += `\n*Detalhes da Nota:*\n`;
+            itens.forEach(item => {
+                textoGerado += `- ${item.nome}: ${formatarMoeda(item.valor)}\n`;
+            });
+
             if (!temAlguemParaPagar) {
-                textoGerado += "Ninguém deve nada para esta nota!";
+                textoGerado = "Ninguém deve nada para esta nota!";
             }
 
             // Mostra o resultado
@@ -380,12 +559,15 @@
         function reiniciar() {
             if(confirm("Tem certeza que deseja apagar a nota atual e começar uma nova?")) {
                 itens = [];
+                itensPendentes = [];
                 selectRecebedor.value = "";
                 inputRecebedorOutro.value = "";
                 inputRecebedorOutro.classList.add('hidden');
+                inputNome.value = "";
                 inputValor.value = "";
                 chkPessoas.forEach(chk => chk.checked = false);
                 chkTodos.checked = false;
+                statusPendentes.classList.add('hidden');
                 containerResultado.classList.add('hidden');
                 atualizarInterface();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
